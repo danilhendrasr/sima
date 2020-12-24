@@ -8,9 +8,9 @@ using namespace std;
 
 struct Mahasiswa
 {
-  string npm;
-  string nama;
-  string jurusan;
+  char npm[50];
+  char nama[50];
+  char jurusan[50];
 };
 
 int getOption();
@@ -18,14 +18,14 @@ void checkDatabase(fstream &data);
 int getDataSize(fstream &data);
 Mahasiswa readData(fstream &data, int posisi);
 void addStudentData(fstream &data);
-void writeData(fstream &data, Mahasiswa &inputMahasiswa);
+void writeData(fstream &data, int posisi, Mahasiswa &inputMahasiswa);
 void displayData(fstream &data);
 
 int main()
 {
 
   fstream data;
-  data.open("data.txt", ios::out | ios::in | ios::app);
+  data.open("data.bin", ios::out | ios::in | ios::binary);
 
   checkDatabase(data);
 
@@ -117,7 +117,7 @@ void checkDatabase(fstream &data)
   {
     cout << "Database not found, created a new one" << endl;
     data.close();
-    data.open("data.txt", ios::trunc | ios::out | ios::in | ios::binary);
+    data.open("data.bin", ios::trunc | ios::out | ios::in | ios::binary);
   }
 }
 
@@ -148,13 +148,13 @@ void addStudentData(fstream &data)
   cout << "Ukuran data: " << size << endl;
 
   cout << "NPM: ";
-  getline(cin, inputMahasiswa.npm);
+  cin.getline(inputMahasiswa.npm, sizeof(inputMahasiswa.npm));
   cout << "Nama: ";
-  getline(cin, inputMahasiswa.nama);
+  cin.getline(inputMahasiswa.nama, sizeof(inputMahasiswa.nama));
   cout << "Jurusan: ";
-  getline(cin, inputMahasiswa.jurusan);
+  cin.getline(inputMahasiswa.jurusan, sizeof(inputMahasiswa.jurusan));
 
-  writeData(data, inputMahasiswa);
+  writeData(data, size, inputMahasiswa);
 }
 
 void displayData(fstream &data)
@@ -172,7 +172,8 @@ void displayData(fstream &data)
   }
 }
 
-void writeData(fstream &data, Mahasiswa &inputMahasiswa)
+void writeData(fstream &data, int posisi, Mahasiswa &inputMahasiswa)
 {
+  data.seekp(posisi * sizeof(Mahasiswa), ios::beg);
   data.write((char *)&inputMahasiswa, sizeof(Mahasiswa));
 }
