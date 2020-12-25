@@ -1,4 +1,5 @@
 #! /usr/bin/bash
 
-g++ -o dist/sidulur main.cpp
-dist/./sidulur
+[[ ! -d ./dist/ ]] && mkdir dist
+g++ -o dist/sima main.cpp
+dist/./sima
