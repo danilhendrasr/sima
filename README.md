@@ -31,3 +31,6 @@ g++ -o sima main.cpp
 - Got used to pointers
 - String data type is not always reliable (it caused a bug which causes me to switch to array of char instead)
 - Know the difference between dot operator and arrow operator
+
+## LICENSE
+[MIT Licensed](https://github.com/danilhendras/sima/blob/main/LICENSE)
