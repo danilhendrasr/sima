@@ -1,7 +1,6 @@
 #include <iostream>
-#include <string>
-#include <cstring>
 #include <fstream>
+#include <cstring>
 #include <limits>
 
 using namespace std;
@@ -14,14 +13,14 @@ struct Mahasiswa
 };
 
 int getOption();
-int getDataSize(fstream &data);
-void displayData(fstream &data);
-void updateRecord(fstream &data);
-void deleteRecord(fstream &data);
-void checkDatabase(fstream &data);
-void addStudentData(fstream &data);
-void writeData(fstream &data, int posisi, Mahasiswa &inputMahasiswa);
-Mahasiswa readData(fstream &data, int posisi);
+int getDataSize(fstream *data);
+void displayData(fstream *data);
+void updateRecord(fstream *data);
+void deleteRecord(fstream *data);
+void checkDatabase(fstream *data);
+void addStudentData(fstream *data);
+void writeData(fstream *data, int posisi, Mahasiswa *inputMahasiswa);
+Mahasiswa readData(fstream *data, int posisi);
 
 int main()
 {
@@ -29,7 +28,7 @@ int main()
   fstream data;
   data.open("data.bin", ios::out | ios::in | ios::binary);
 
-  checkDatabase(data);
+  checkDatabase(&data);
 
   int userMenuChoice = getOption();
 
@@ -49,35 +48,36 @@ int main()
     {
     case CREATE:
       cout << "Menambah data mahasiswa\n";
-      addStudentData(data);
+      addStudentData(&data);
       break;
     case READ:
       cout << "\nTampilkan data mahasiswa\n\n";
-      displayData(data);
+      displayData(&data);
       break;
     case UPDATE:
       cout << "\nUbah data mahasiswa\n\n";
       cout << "\n=============== Data saat ini ===============\n";
-      displayData(data);
+      displayData(&data);
       cout << "=======================================================\n";
 
-      updateRecord(data);
+      updateRecord(&data);
 
       cout << "\n=============== Data setelah update ===============\n";
-      displayData(data);
+      displayData(&data);
       cout << "=======================================================\n";
       break;
     case DELETE:
       cout << "\nHapus data mahasiswa\n\n";
       cout << "\n=============== Data saat ini ===============\n";
-      displayData(data);
+      displayData(&data);
       cout << "=======================================================\n";
 
-      deleteRecord(data);
+      deleteRecord(&data);
 
       cout << "\n=============== Data setelah penghapusan ===============\n";
-      displayData(data);
+      displayData(&data);
       cout << "=======================================================\n";
+      break;
     default:
       cout << "\nMenu tidak ada\n";
     }
@@ -127,40 +127,40 @@ int getOption()
   return input;
 }
 
-void checkDatabase(fstream &data)
+void checkDatabase(fstream *data)
 {
   // Check if database file exists
-  if (data.is_open())
+  if (data->is_open())
   {
     cout << "Database exists\n";
   }
   else
   {
     cout << "Database not found, created a new one\n";
-    data.close();
-    data.open("data.bin", ios::trunc | ios::out | ios::in | ios::binary);
+    data->close();
+    data->open("data.bin", ios::trunc | ios::out | ios::in | ios::binary);
   }
 }
 
-int getDataSize(fstream &data)
+int getDataSize(fstream *data)
 {
   int start, end;
-  data.seekg(0, ios::beg);
-  start = data.tellg();
-  data.seekg(0, ios::end);
-  end = data.tellg();
+  data->seekg(0, ios::beg);
+  start = data->tellg();
+  data->seekg(0, ios::end);
+  end = data->tellg();
   return (end - start) / sizeof(Mahasiswa);
 }
 
-Mahasiswa readData(fstream &data, int posisi)
+Mahasiswa readData(fstream *data, int posisi)
 {
   Mahasiswa readMahasiswa;
-  data.seekg(posisi * sizeof(Mahasiswa), ios::beg);
-  data.read((char *)&readMahasiswa, sizeof(Mahasiswa));
+  data->seekg(posisi * sizeof(Mahasiswa), ios::beg);
+  data->read((char *)&readMahasiswa, sizeof(Mahasiswa));
   return readMahasiswa;
 }
 
-void addStudentData(fstream &data)
+void addStudentData(fstream *data)
 {
   Mahasiswa inputMahasiswa, lastMahasiswa;
 
@@ -175,10 +175,10 @@ void addStudentData(fstream &data)
   cout << "Jurusan: ";
   cin.getline(inputMahasiswa.jurusan, sizeof(inputMahasiswa.jurusan));
 
-  writeData(data, size, inputMahasiswa);
+  writeData(data, size, &inputMahasiswa);
 }
 
-void displayData(fstream &data)
+void displayData(fstream *data)
 {
   int size = getDataSize(data);
   Mahasiswa currentMahasiswa;
@@ -206,13 +206,13 @@ void displayData(fstream &data)
   }
 }
 
-void writeData(fstream &data, int posisi, Mahasiswa &inputMahasiswa)
+void writeData(fstream *data, int posisi, Mahasiswa *inputMahasiswa)
 {
-  data.seekp(posisi * sizeof(Mahasiswa), ios::beg);
-  data.write((char *)&inputMahasiswa, sizeof(Mahasiswa));
+  data->seekp(posisi * sizeof(Mahasiswa), ios::beg);
+  data->write((char *)inputMahasiswa, sizeof(Mahasiswa));
 }
 
-void updateRecord(fstream &data)
+void updateRecord(fstream *data)
 {
   int entryNumber;
   Mahasiswa whichMahasiswa;
@@ -240,10 +240,10 @@ void updateRecord(fstream &data)
   cout << "Jurusan: ";
   cin.getline(whichMahasiswa.jurusan, sizeof(whichMahasiswa.jurusan));
 
-  writeData(data, positionInFile, whichMahasiswa);
+  writeData(data, positionInFile, &whichMahasiswa);
 }
 
-void deleteRecord(fstream &data)
+void deleteRecord(fstream *data)
 {
   int deleteNumber, size, offset;
 
@@ -254,7 +254,7 @@ void deleteRecord(fstream &data)
   cout << "Masukkan nomor data yang ingin dihapus [1-" << size << "]: ";
   cin >> deleteNumber;
 
-  writeData(data, deleteNumber - 1, blankMahasiswa);
+  writeData(data, deleteNumber - 1, &blankMahasiswa);
 
   temporaryData.open("temp.bin", ios::trunc | ios::out | ios::in | ios::binary);
 
@@ -265,7 +265,7 @@ void deleteRecord(fstream &data)
 
     if (strlen(tempMahasiswa.nama) != 0)
     {
-      writeData(temporaryData, i - offset, tempMahasiswa);
+      writeData(&temporaryData, i - offset, &tempMahasiswa);
     }
     else
     {
@@ -274,16 +274,16 @@ void deleteRecord(fstream &data)
     }
   }
 
-  size = getDataSize(temporaryData);
-  data.close();
-  data.open("data.bin", ios::trunc | ios::out | ios::binary);
-  data.close();
-  data.open("data.bin", ios::out | ios::in | ios::binary);
+  size = getDataSize(&temporaryData);
+  data->close();
+  data->open("data.bin", ios::trunc | ios::out | ios::binary);
+  data->close();
+  data->open("data.bin", ios::out | ios::in | ios::binary);
 
   for (int i = 0; i < size; i++)
   {
-    tempMahasiswa = readData(temporaryData, i);
-    writeData(data, i, tempMahasiswa);
+    tempMahasiswa = readData(&temporaryData, i);
+    writeData(data, i, &tempMahasiswa);
   }
 
   temporaryData.close();
