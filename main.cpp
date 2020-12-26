@@ -24,7 +24,6 @@ Mahasiswa readData(fstream *data, int posisi);
 
 int main()
 {
-
   fstream data;
   data.open("data.bin", ios::out | ios::in | ios::binary);
 
@@ -216,14 +215,20 @@ void updateRecord(fstream *data)
 {
   int entryNumber;
   Mahasiswa whichMahasiswa;
-
   int dataCount = getDataSize(data);
-  cout << "Pilih nomor entri [1-" << dataCount << "]: ";
-  cin >> entryNumber;
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+  do
+  {
+    cout << "Pilih nomor entri [1-" << dataCount << "]: ";
+    cin >> entryNumber;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    if (entryNumber > dataCount)
+    {
+      cout << "Data dengan nomor " << entryNumber << " tidak ditemukan\n";
+    }
+  } while (entryNumber > dataCount);
 
   int positionInFile = entryNumber - 1;
-
   whichMahasiswa = readData(data, positionInFile);
 
   cout << "\n====== Data saat ini ======\n";
